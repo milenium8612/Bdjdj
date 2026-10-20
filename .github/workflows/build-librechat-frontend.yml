@@ -1,1 +1,41 @@
+name: Build LibreChat Frontend
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout LibreChat
+        uses: actions/checkout@v4
+        with:
+          repository: LibreChat-AI/LibreChat
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build --workspace=client || npm run build
+
+      - name: Show output
+        run: find . -path ./node_modules -prune -o -name index.html -print
+
+      - name: Upload frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-dist
+          if-no-files-found: warn
+          path: |
+            client/dist
+            packages/client/dist
+            dist
+            build
 
