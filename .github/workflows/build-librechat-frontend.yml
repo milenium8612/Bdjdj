@@ -1,6 +1,7 @@
 name: Build LibreChat Frontend
 
 on:
+  push:
   workflow_dispatch:
 
 jobs:
@@ -25,7 +26,7 @@ jobs:
       - name: Build frontend
         run: npm run build --workspace=client || npm run build
 
-      - name: Show output
+      - name: Find build output
         run: find . -path ./node_modules -prune -o -name index.html -print
 
       - name: Upload frontend
@@ -38,4 +39,3 @@ jobs:
             packages/client/dist
             dist
             build
-
