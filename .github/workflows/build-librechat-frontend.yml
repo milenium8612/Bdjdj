@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -29,13 +29,13 @@ jobs:
       - name: Build frontend
         run: npm run frontend:ci
 
-      - name: Show build output
-        run: find . -path ./node_modules -prune -o -name index.html -print
+      - name: Remove sourcemaps
+        run: find client/dist -name "*.map" -delete || true
 
-      - name: Upload frontend
-        uses: actions/upload-artifact@v4
+      - name: Deploy dist to frontend-dist branch
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: client-dist
-          if-no-files-found: warn
-          path: |
-            client/dist
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./client/dist
+          publish_branch: frontend-dist
+          force_orphan: true
