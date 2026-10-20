@@ -10,7 +10,7 @@ jobs:
       - name: Клонировать NextChat
         run: git clone --depth 1 https://github.com/ChatGPTNextWeb/NextChat.git nextchat
 
-      - name: Патч: static export
+      - name: "Патч: static export"
         working-directory: nextchat
         run: |
           cat > next.config.mjs <<'EOF'
