@@ -7,33 +7,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Клонировать NextChat
+      - name: "Клонировать NextChat"
         run: git clone --depth 1 https://github.com/ChatGPTNextWeb/NextChat.git nextchat
 
       - name: "Патч: static export"
         working-directory: nextchat
         run: |
-          cat > next.config.mjs <<'EOF'
-          /** @type {import('next').NextConfig} */
-          const nextConfig = {
-            output: "export",
-            trailingSlash: true,
-            images: { unoptimized: true },
-          };
-          export default nextConfig;
-          EOF
           rm -rf app/api
+          cat > app/danger-config.d.ts <<'EOF'
+          type DangerConfig = {
+            needCode: boolean;
+            hideUserApiKey: boolean;
+            disableGPT4: boolean;
+            hideBalanceQuery: boolean;
+            disableFastLink: boolean;
+            customModels: string;
+            defaultModel: string;
+            visionModels: string;
+          };
+          EOF
           cp -r "$GITHUB_WORKSPACE/public"/* ./public/
 
-      - name: Сборка
+      - name: "Сборка"
         working-directory: nextchat
+        env:
+          BUILD_MODE: export
         run: |
           yarn install
           yarn build
 
-      - name: Артефакт для скачивания
+      - name: "Артефакт для скачивания"
         uses: actions/upload-artifact@v4
         with:
           name: nextchat-site
           path: nextchat/out
-
