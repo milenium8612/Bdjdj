@@ -1,1 +1,39 @@
+name: build-nextchat
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Клонировать NextChat
+        run: git clone --depth 1 https://github.com/ChatGPTNextWeb/NextChat.git nextchat
+
+      - name: Патч: static export
+        working-directory: nextchat
+        run: |
+          cat > next.config.mjs <<'EOF'
+          /** @type {import('next').NextConfig} */
+          const nextConfig = {
+            output: "export",
+            trailingSlash: true,
+            images: { unoptimized: true },
+          };
+          export default nextConfig;
+          EOF
+          rm -rf app/api
+          cp -r "$GITHUB_WORKSPACE/public"/* ./public/
+
+      - name: Сборка
+        working-directory: nextchat
+        run: |
+          yarn install
+          yarn build
+
+      - name: Артефакт для скачивания
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextchat-site
+          path: nextchat/out
 
